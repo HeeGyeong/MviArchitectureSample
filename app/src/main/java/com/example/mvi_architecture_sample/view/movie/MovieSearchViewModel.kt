@@ -8,6 +8,7 @@ import com.example.mvi_architecture_sample.api.ApiInterface
 import com.example.mvi_architecture_sample.base.iface.IModel
 import com.example.mvi_architecture_sample.util.NetworkManager
 import com.example.mvi_architecture_sample.view.event.MovieIntent
+import com.example.mvi_architecture_sample.view.event.MovieSideEffect
 import com.example.mvi_architecture_sample.view.event.MovieState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -24,18 +25,25 @@ class MovieSearchViewModel(
     private val userApi: ApiInterface,
     private val networkManager: NetworkManager,
 ) :
-    ViewModel(), IModel<MovieState, MovieIntent> {
+    ViewModel(), IModel<MovieState, MovieIntent, MovieSideEffect> {
 
     override val intents: Channel<MovieIntent> = Channel(Channel.UNLIMITED)
+    override val sideEffect: Channel<MovieSideEffect> = Channel(Channel.UNLIMITED)
 
     private val _state = MutableLiveData<MovieState>().apply { value = MovieState() }
     override val state: LiveData<MovieState>
         get() = _state
 
+    // default 값에 따라서 초기에 1회 호출이 되는 것 주의.
+    private val _navigation = MutableLiveData<String>().apply { value = "" }
+    val navigation = _navigation
+
     var searchText: String? = null
 
     init {
+        // Init Consumer setting
         intentConsumer()
+        sideEffectConsumer()
     }
 
     private fun intentConsumer() {
@@ -45,8 +53,21 @@ class MovieSearchViewModel(
                     networkError()
                 } else {
                     when (userIntent) {
-                        MovieIntent.SearchUser -> fetchData()
+                        MovieIntent.SearchMovie -> fetchData()
+                        MovieIntent.NavigateToMainActivity -> sideEffect.send(MovieSideEffect.NavigateToMainActivity)
                     }
+                }
+            }
+        }
+    }
+
+    // sideEffect 확장에 따라 호출하는 부분도 변경 필요
+    private fun sideEffectConsumer() {
+        viewModelScope.launch {
+            sideEffect.consumeAsFlow().collect { sideEffect ->
+                when (sideEffect) {
+                    MovieSideEffect.NavigateToMainActivity -> updateNavigation { "main" }
+                    else -> updateNavigation { "movie" }
                 }
             }
         }
@@ -82,6 +103,10 @@ class MovieSearchViewModel(
 
     private suspend fun updateState(handler: suspend (intent: MovieState) -> MovieState) {
         _state.postValue(handler(state.value!!))
+    }
+
+    private suspend fun updateNavigation(handler: suspend (intent: String) -> String) {
+        _navigation.postValue(handler(navigation.value.toString()))
     }
 }
 
