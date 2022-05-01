@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
  * 해당 Activity 에서 사용되는 UseCase 를 모두 파라미터로 받는다.
  */
 class MovieSearchViewModel(
-    private val userApi: ApiInterface,
+    private val movieApi: ApiInterface,
     private val networkManager: NetworkManager,
 ) :
     ViewModel(), IModel<MovieState, MovieIntent, MovieSideEffect> {
@@ -79,11 +79,11 @@ class MovieSearchViewModel(
                 updateState { it.copy(isLoading = true, errorMessage = null) }
 
                 flow {
-                    emit(userApi.getSearchMovieFlow(searchText ?: "null"))
+                    emit(movieApi.getSearchMovieFlow(searchText ?: "null"))
                 }.collect { movie ->
                     if (movie.movies.isNotEmpty()) {
                         updateState {
-                            it.copy(isLoading = false, users = movie.movies, errorMessage = null)
+                            it.copy(isLoading = false, movies = movie.movies, errorMessage = null)
                         }
                     } else {
                         updateState { it.copy(isLoading = false, errorMessage = "Do not found") }

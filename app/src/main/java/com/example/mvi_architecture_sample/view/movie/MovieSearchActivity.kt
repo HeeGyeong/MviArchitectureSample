@@ -49,7 +49,7 @@ class MovieSearchActivity : AppCompatActivity(), IView<MovieState, MovieSideEffe
 
     override fun render(state: MovieState) {
         with(state) {
-            movieAdapter.submitList(users)
+            movieAdapter.submitList(movies)
 
             if (errorMessage != null) {
                 Toast.makeText(this@MovieSearchActivity, "$errorMessage", Toast.LENGTH_SHORT).show()
