@@ -49,6 +49,12 @@ class MovieSearchActivity : AppCompatActivity(), IView<MovieState, MovieSideEffe
 
     override fun render(state: MovieState) {
         with(state) {
+            if (isLoading) {
+                progressBar.visibility = View.VISIBLE
+            } else {
+                progressBar.visibility = View.INVISIBLE
+            }
+
             movieAdapter.submitList(movies)
 
             if (errorMessage != null) {
