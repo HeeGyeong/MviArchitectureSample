@@ -8,4 +8,4 @@ Data는 Clean Architecture Sample에서 사용한 API를 그대로 사용하였�
 ## Blog
 Mvi Architecture에 대한 설명은 다음 블로그에 작성해 두었습니다.
 
-[Tistory Blog](https://heegs.tistory.com/113, "MVI Architecture Sample")
+[Tistory Blog - MVI Pattern](https://heegs.tistory.com/113 "MVI Architecture Sample")
